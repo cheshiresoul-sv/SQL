@@ -154,28 +154,46 @@ BEGIN
         id_tarjeta_credito      INT,
         codigo_autorizacion_tc  VARCHAR(100),
         id_tasa_cambio          INT,
-        sub_total               DECIMAL(12,2),
-        impuestos               DECIMAL(12,2),
-        flete                   DECIMAL(12,2),
-        total_neto              DECIMAL(12,2)
+        sub_total               DECIMAL(18,4),
+        impuestos               DECIMAL(18,4),
+        flete                   DECIMAL(18,4),
+        total_neto              DECIMAL(18,4),
+        observaciones           VARCHAR(MAX),
+        guid_fila               UNIQUEIDENTIFIER,
+        fecha_modificacion      DATETIME
+
     );
+END
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'tst.vta_pedido_detalle') AND type = 'U')
+BEGIN
+CREATE TABLE [tst].[vta_pedido_detalle](
+	[id_detalle] [int] NOT NULL,
+	[id_orden] [int] NOT NULL,
+	[guia_rastreo] [varchar](100) NULL,
+	[cantidad] [int] NULL,
+	[id_articulo] [int] NULL,
+	[id_oferta_especial] [int] NULL,
+	[precio_unitario] [decimal](12, 2) NULL,
+	[descuento_unitario] [decimal](12, 2) NULL,
+	[total_linea] [decimal](12, 2) NULL,
+	[guid_fila] [uniqueidentifier] NULL,
+	[fecha_modificacion] [datetime] NULL,
+ CONSTRAINT [PK_vta_pedido_detalle] PRIMARY KEY CLUSTERED 
+(
+	[id_detalle] ASC,
+	[id_orden] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+
 END
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'tst.vta_pedido_detalle') AND type = 'U')
-BEGIN
-    CREATE TABLE tst.vta_pedido_detalle (
-        id_detalle              INT             PRIMARY KEY,
-        id_orden                INT             FOREIGN KEY REFERENCES tst.vta_pedido(id_orden),
-        guia_rastreo            VARCHAR(100),
-        cantidad                INT,
-        id_articulo             INT             FOREIGN KEY REFERENCES tst.inv_articulo(id_articulo),
-        id_oferta_especial      INT,
-        precio_unitario         DECIMAL(12,2),
-        descuento_unitario      DECIMAL(12,2),
-        total_linea             DECIMAL(12,2),
-        guid_fila               UNIQUEIDENTIFIER,
-        fecha_modificacion      DATETIME
-    );
-END
+ALTER TABLE [tst].[vta_pedido_detalle]  WITH CHECK ADD FOREIGN KEY([id_articulo])
+REFERENCES [tst].[inv_articulo] ([id_articulo])
 GO
+
+
+
+use master
+go
